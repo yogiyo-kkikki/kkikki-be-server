@@ -1,0 +1,14 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"     # 실제 통신 포트
+      - "15672:15672"   # 관리 화면 (브라우저로 확인용)
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
