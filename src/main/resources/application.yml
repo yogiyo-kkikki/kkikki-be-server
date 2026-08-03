@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: kkikki-be-server
-
-server:
-  port: 8080
