@@ -1,0 +1,1 @@
+INSERT INTO sample (message) VALUES ('sample');
