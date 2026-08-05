@@ -1,4 +1,4 @@
-package com.example.kkikki_be_server.infrastructure.messaging.common;
+package com.example.kkikki_be_server.global.response;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
