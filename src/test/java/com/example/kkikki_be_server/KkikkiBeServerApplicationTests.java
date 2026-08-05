@@ -1,13 +1,12 @@
-package com.example.demo;
+package com.example.kkikki_be_server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class KkikkiBeServerApplicationTests {
 
 	@Test
 	void contextLoads() {
 	}
-
 }
