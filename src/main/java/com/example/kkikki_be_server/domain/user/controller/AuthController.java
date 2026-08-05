@@ -51,7 +51,7 @@ public class AuthController {
 
 	@PostMapping("/update")
 	public ResponseEntity<ApiResponse> update(
-			@RequestHeader("Authorization") String authorization,
+			@RequestHeader(value = "Authorization", required = false) String authorization,
 			@Valid @RequestBody AuthDto.UpdateRequest request) {
 		return ApiResponseBuilder.success(authService.update(authorization, request));
 	}

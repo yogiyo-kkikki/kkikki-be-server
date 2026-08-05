@@ -18,7 +18,8 @@ public class MeController {
 	private final AuthService authService;
 
 	@GetMapping("/me")
-	public ResponseEntity<ApiResponse> getMe(@RequestHeader("Authorization") String authorization) {
+	public ResponseEntity<ApiResponse> getMe(
+			@RequestHeader(value = "Authorization", required = false) String authorization) {
 		return ApiResponseBuilder.success(authService.getMe(authorization));
 	}
 }

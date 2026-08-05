@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,10 @@ public class JwtProvider {
 		return parseClaims(token).getSubject();
 	}
 
+	public Long extractUserId(String token) {
+		return Long.valueOf(extractSubject(token));
+	}
+
 	public boolean validateAccessToken(String token) {
 		return validateByType(token, ACCESS_TOKEN_TYPE);
 	}
@@ -64,6 +69,7 @@ public class JwtProvider {
 		Date expiredAt = new Date(now.getTime() + (expiresInSeconds * 1000));
 
 		return Jwts.builder()
+				.setId(UUID.randomUUID().toString())
 				.setSubject(subject)
 				.claim(TOKEN_TYPE_CLAIM, type)
 				.setIssuedAt(now)
@@ -75,6 +81,7 @@ public class JwtProvider {
 	private boolean validateByType(String token, String requiredType) {
 		try {
 			Claims claims = parseClaims(token);
+			Long.parseLong(claims.getSubject());
 			return requiredType.equals(claims.get(TOKEN_TYPE_CLAIM, String.class));
 		} catch (Exception ignored) {
 			return false;
