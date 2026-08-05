@@ -28,7 +28,7 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtProvider jwtProvider;
 
-	private final Map<String, String> refreshTokenStore = new ConcurrentHashMap<>();
+	private final Map<Long, String> refreshTokenStore = new ConcurrentHashMap<>();
 
 	public AuthDto.ExistsResponse exists(String username) {
 		return new AuthDto.ExistsResponse(existsByUsername(username));
@@ -66,7 +66,7 @@ public class AuthService {
 		}
 
 		UserRow savedUser = findUserById(createdId.longValue());
-		AuthDto.TokenPairResponse tokenPair = issueTokens(savedUser.username());
+		AuthDto.TokenPairResponse tokenPair = issueTokens(savedUser.id());
 		return new AuthDto.LoginResponse(toUserProfile(savedUser), tokenPair);
 	}
 
@@ -76,7 +76,7 @@ public class AuthService {
 			throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
 		}
 
-		AuthDto.TokenPairResponse tokenPair = issueTokens(user.username());
+		AuthDto.TokenPairResponse tokenPair = issueTokens(user.id());
 		return new AuthDto.LoginResponse(toUserProfile(user), tokenPair);
 	}
 
@@ -87,8 +87,8 @@ public class AuthService {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED_TOKEN);
 		}
 
-		String username = jwtProvider.extractSubject(refreshToken);
-		String savedToken = refreshTokenStore.get(username);
+		Long userId = jwtProvider.extractUserId(refreshToken);
+		String savedToken = refreshTokenStore.get(userId);
 		if (savedToken == null) {
 			throw new BusinessException(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
 		}
@@ -96,42 +96,43 @@ public class AuthService {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED_TOKEN);
 		}
 
-		return issueTokens(username);
+		findUserById(userId);
+		return issueTokens(userId);
 	}
 
 	@Transactional
 	public Map<String, Boolean> logout(String authorizationHeader, AuthDto.LogoutRequest request) {
-		String username = null;
+		Long userId = null;
 
 		if (request != null && request.refreshToken() != null && !request.refreshToken().isBlank()) {
 			if (!jwtProvider.validateRefreshToken(request.refreshToken())) {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED_TOKEN);
 			}
-			username = jwtProvider.extractSubject(request.refreshToken());
+			userId = jwtProvider.extractUserId(request.refreshToken());
 		}
 
-		if (username == null) {
+		if (userId == null) {
 			String accessToken = resolveAccessToken(authorizationHeader);
 			if (!jwtProvider.validateAccessToken(accessToken)) {
 				throw new BusinessException(ErrorCode.UNAUTHORIZED_TOKEN);
 			}
-			username = jwtProvider.extractSubject(accessToken);
+			userId = jwtProvider.extractUserId(accessToken);
 		}
 
-		refreshTokenStore.remove(username);
+		refreshTokenStore.remove(userId);
 		return Map.of("logout", true);
 	}
 
 	public AuthDto.UserProfileResponse getMe(String authorizationHeader) {
-		String username = extractAuthorizedUsername(authorizationHeader);
-		UserRow user = findUserByUsername(username);
+		Long userId = extractAuthorizedUserId(authorizationHeader);
+		UserRow user = findUserById(userId);
 		return toUserProfile(user);
 	}
 
 	@Transactional
 	public AuthDto.UserProfileResponse update(String authorizationHeader, AuthDto.UpdateRequest request) {
-		String currentUsername = extractAuthorizedUsername(authorizationHeader);
-		UserRow currentUser = findUserByUsername(currentUsername);
+		Long userId = extractAuthorizedUserId(authorizationHeader);
+		UserRow currentUser = findUserById(userId);
 
 		if (!currentUser.username().equals(request.username()) && existsByUsername(request.username())) {
 			throw new BusinessException(ErrorCode.USERNAME_ALREADY_EXISTS);
@@ -152,22 +153,15 @@ public class AuthService {
 			throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 		}
 
-		if (!currentUsername.equals(request.username())) {
-			String token = refreshTokenStore.remove(currentUsername);
-			if (token != null) {
-				refreshTokenStore.put(request.username(), token);
-			}
-		}
-
 		return toUserProfile(findUserById(currentUser.id()));
 	}
 
-	private String extractAuthorizedUsername(String authorizationHeader) {
+	private Long extractAuthorizedUserId(String authorizationHeader) {
 		String accessToken = resolveAccessToken(authorizationHeader);
 		if (!jwtProvider.validateAccessToken(accessToken)) {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED_TOKEN);
 		}
-		return jwtProvider.extractSubject(accessToken);
+		return jwtProvider.extractUserId(accessToken);
 	}
 
 	private String resolveAccessToken(String authorizationHeader) {
@@ -177,10 +171,11 @@ public class AuthService {
 		return authorizationHeader.substring("Bearer ".length());
 	}
 
-	private AuthDto.TokenPairResponse issueTokens(String username) {
-		String accessToken = jwtProvider.createAccessToken(username);
-		String refreshToken = jwtProvider.createRefreshToken(username);
-		refreshTokenStore.put(username, refreshToken);
+	private AuthDto.TokenPairResponse issueTokens(Long userId) {
+		String subject = userId.toString();
+		String accessToken = jwtProvider.createAccessToken(subject);
+		String refreshToken = jwtProvider.createRefreshToken(subject);
+		refreshTokenStore.put(userId, refreshToken);
 		return new AuthDto.TokenPairResponse(
 				accessToken,
 				refreshToken,
