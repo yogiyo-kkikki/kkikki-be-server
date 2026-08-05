@@ -1,14 +1,56 @@
 services:
+  # 1. RabbitMQ: LLM API 호출(비동기) 작업을 위한 메시지 큐
   rabbitmq:
     image: rabbitmq:3.13-management
+    container_name: app-rabbitmq
     ports:
-      - "5672:5672"     # 실제 통신 포트
-      - "15672:15672"   # 관리 화면 (브라우저로 확인용)
+      - "5672:5672"     # 애플리케이션 통신 포트
+      - "15672:15672"   # 브라우저 관리 화면 포트 (http://localhost:15672)
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    restart: unless-stopped
 
-  # redis:
-  #   image: redis:7-alpine
-  #   ports:
-  #     - "6379:6379"
+  # 2. Redis: 랭킹, 캐싱 및 빠른 조회용 메모리 DB
+  redis:
+    image: redis:7-alpine
+    container_name: app-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # 3. MySQL: 회원, 가게, 메뉴 등 핵심 마스터 데이터 관리
+  mysql:
+    image: mysql:8.0
+    container_name: app-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: app_db
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql  # 컨테이너 삭제돼도 데이터 유지
+    restart: unless-stopped
+
+  # 4. MongoDB: LLM이 뱉어낸 다양한 형태의 꿀조합 JSON 결과물 저장
+  mongodb:
+    image: mongo:7.0
+    container_name: app-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      TZ: Asia/Seoul
+    volumes:
+      - mongodb_data:/data/db      # 컨테이너 삭제돼도 데이터 유지
+    restart: unless-stopped
+
+# 데이터 영구 저장을 위한 볼륨 선언
+volumes:
+  mysql_data:
+  mongodb_data:
