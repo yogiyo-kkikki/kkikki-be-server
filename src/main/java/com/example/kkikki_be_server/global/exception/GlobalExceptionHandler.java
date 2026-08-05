@@ -1,7 +1,7 @@
 package com.example.kkikki_be_server.global.exception;
 
-import com.example.kkikki_be_server.global.response.ApiResponse;
-import com.example.kkikki_be_server.global.response.ApiResponseBuilder;
+import com.example.kkikki_be_server.global.common.ApiResponse;
+import com.example.kkikki_be_server.global.common.ApiResponseBuilder;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

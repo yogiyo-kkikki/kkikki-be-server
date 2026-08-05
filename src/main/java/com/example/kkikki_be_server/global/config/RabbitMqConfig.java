@@ -1,6 +1,6 @@
 package com.example.kkikki_be_server.global.config;
 
-import com.example.kkikki_be_server.infrastructure.messaging.rabbitmq.RabbitMqDispatcher;
+import com.example.kkikki_be_server.infra.message.rabbitmq.RabbitMqDispatcher;
 import jakarta.annotation.PreDestroy;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
