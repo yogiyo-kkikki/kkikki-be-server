@@ -2,12 +2,14 @@ package com.example.kkikki_be_server.infra.message.rabbitmq;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Profile("local")
 @RequiredArgsConstructor
 @RequestMapping("/api/test/rabbitmq")
 public class RabbitMqTestController {

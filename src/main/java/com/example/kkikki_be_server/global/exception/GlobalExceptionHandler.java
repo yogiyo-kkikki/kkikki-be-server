@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,6 +30,16 @@ public class GlobalExceptionHandler {
 				ErrorCode.INVALID_REQUEST.getCode(),
 				message,
 				Map.of());
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ApiResponse> handleNoResourceFoundException(NoResourceFoundException exception) {
+		ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
+		return ApiResponseBuilder.error(
+				errorCode.getHttpStatus(),
+				errorCode.getCode(),
+				errorCode.getMessage(),
+				null);
 	}
 
 	@ExceptionHandler(Exception.class)
