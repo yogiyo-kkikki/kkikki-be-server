@@ -1,6 +1,7 @@
 package com.example.kkikki_be_server.global.exception;
 
-import java.util.Map;
+import com.example.kkikki_be_server.global.response.ApiResponse;
+import com.example.kkikki_be_server.global.response.ApiResponseBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,16 +11,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
-	public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException exception) {
+	public ResponseEntity<ApiResponse> handleBusinessException(BusinessException exception) {
 		ErrorCode errorCode = exception.getErrorCode();
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(Map.of("code", errorCode.getCode(), "message", errorCode.getMessage()));
+		return ApiResponseBuilder.error(HttpStatus.BAD_REQUEST, errorCode.getCode(), errorCode.getMessage(), null);
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<Map<String, String>> handleException(Exception exception) {
+	public ResponseEntity<ApiResponse> handleException(Exception exception) {
 		ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(Map.of("code", errorCode.getCode(), "message", errorCode.getMessage()));
+		return ApiResponseBuilder.error(
+				HttpStatus.INTERNAL_SERVER_ERROR,
+				errorCode.getCode(),
+				errorCode.getMessage(),
+				null);
 	}
 }

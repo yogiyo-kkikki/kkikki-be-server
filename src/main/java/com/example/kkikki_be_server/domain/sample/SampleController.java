@@ -1,6 +1,9 @@
 package com.example.kkikki_be_server.domain.sample;
 
+import com.example.kkikki_be_server.global.response.ApiResponse;
+import com.example.kkikki_be_server.global.response.ApiResponseBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +16,7 @@ public class SampleController {
 	private final SampleService sampleService;
 
 	@GetMapping
-	public SampleDto getSample() {
-		return sampleService.getSample();
+	public ResponseEntity<ApiResponse> getSample() {
+		return ApiResponseBuilder.success(sampleService.getSample());
 	}
 }
