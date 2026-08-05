@@ -5,6 +5,7 @@ import com.example.kkikki_be_server.global.response.ApiResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,5 +19,10 @@ public class SampleController {
 	@GetMapping
 	public ResponseEntity<ApiResponse> getSample() {
 		return ApiResponseBuilder.success(sampleService.getSample());
+	}
+
+	@PostMapping("/messages/test")
+	public ResponseEntity<ApiResponse> enqueueTestMessage() {
+		return ApiResponseBuilder.success(sampleService.enqueueTestMessage());
 	}
 }
