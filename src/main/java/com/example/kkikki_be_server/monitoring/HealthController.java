@@ -1,7 +1,7 @@
 package com.example.kkikki_be_server.monitoring;
 
-import com.example.kkikki_be_server.global.response.ApiResponse;
-import com.example.kkikki_be_server.global.response.ApiResponseBuilder;
+import com.example.kkikki_be_server.global.common.ApiResponse;
+import com.example.kkikki_be_server.global.common.ApiResponseBuilder;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

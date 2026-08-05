@@ -1,6 +1,6 @@
 package com.example.kkikki_be_server.domain.combination.entity;
 
-import com.example.kkikki_be_server.domain.common.BaseCreatedEntity;
+import com.example.kkikki_be_server.global.common.BaseCreatedEntity;
 import com.example.kkikki_be_server.domain.recommendation.entity.SourceType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
